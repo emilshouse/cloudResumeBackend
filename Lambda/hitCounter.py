@@ -29,7 +29,7 @@ def updateDb(lastCount):
             },
     	UpdateExpression='SET hits = :val1',
     	ExpressionAttributeValues={
-        	':val1': lastCount + 10
+        	':val1': lastCount + 1
     	}
     )
 
