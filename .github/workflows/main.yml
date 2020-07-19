@@ -19,12 +19,15 @@ jobs:
     steps:
     # Checks-out your repository under $GITHUB_WORKSPACE, so your job can access it
     - uses: actions/checkout@v2
+    
+    - name: Install Dependencies
+      run: pip3 install moto
 
     # Runs a single command using the runners shell
     - name: GitHub Action for pytest
       uses: cclauss/GitHub-Action-for-pytest@0.5.0
       with:
-        args: pip3 install moto && pytest  ${GITHUB_WORKSPACE}/tests/test_hitCounter.py
+        args: pytest ${GITHUB_WORKSPACE}/tests/test_hitCounter.py
     
     # Marketplace action to run AWS-SAM
     - name: AWS SAM build
