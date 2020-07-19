@@ -1,55 +1,52 @@
-import unittest
-from Lambda import hitCounter
-#import fetchFromDb from hitCounter.py 
-#import updateDb from hitCounter.py
-from moto import mock_dynamodb
+import pytest
+import os
+from moto import mock_dynamodb2
 import boto3
 
+# Dummy environment variables. 
+os.environ['AWS_ACCESS_KEY_ID'] = 'testing'
+os.environ['AWS_SECRET_ACCESS_KEY'] = 'testing'
+os.environ['AWS_SECURITY_TOKEN'] = 'testing'
+os.environ['AWS_SESSION_TOKEN'] = 'testing'
 
-@mock_dynamodb
+def fetchFromDb(table):
+    response = table.get_item(
+	    Key={
+    		    'page_id':'1'
+            }
+    )
+    
+    hit = response['Item']['hits']
+    return hit
+
+@mock_dynamodb2
 def test_fetchFromDb():
-    dynamodb = boto3.resource('dynamodbTest')
+    dynamodb = boto3.resource('dynamodb', region_name='us-east-1')
     table = dynamodb.create_table(
     TableName='webPageHits-prodTest',
     KeySchema=[
         {
             'AttributeName': 'page_id',
             'KeyType': 'HASH'
-        },
-        {
-            'AttributeName': 'hits',
-            'KeyType': 'RANGE'
         }
     ],
     AttributeDefinitions=[
         {
             'AttributeName': 'page_id',
             'AttributeType': 'S'
-        },
-        {
-            'AttributeName': 'hits',
-            'AttributeType': 'N'
-        },
+        }
     ]
     )
     table.update_item(
-       	Key={
+        Key={
                 'page_id': '1'
             },
-    	UpdateExpression='SET hits = :val1',
-    	ExpressionAttributeValues={
-        	':val1': lastCount + 1
-    	}
-    )
-    print(table.item_count)
-    answer = fetchFromDb()
-    assert answer == 1
+        UpdateExpression='SET hits = :val1',
+	ExpressionAttributeValues={
+        	':val1': 1
+    	 }
+     )
+    print( table.item_count)
+    answer = fetchFromDb(table)
+    assert answer == 1, "Should be 1"
 
-def test_updateDB():
-    sampleValue = 1
-    updateDb(sampleValue)
-    answer = fetchFromDb()
-    assert answer == sampleValue + 1
-
-if __name__ == '__main__':
-    unittest.main()
