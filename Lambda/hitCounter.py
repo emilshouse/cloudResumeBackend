@@ -3,14 +3,6 @@ import boto3
 dynamodb = boto3.resource('dynamodb')
 table = dynamodb.Table('webPageHits-prod')
 
-# def createItems():
-#     table.put_item(
-#         Item={
-#             'page_id': '1',
-#             'hits': 1
-#         }
-#     )
-
 def fetchFromDb():
     response = table.get_item(
 	    Key={
@@ -19,7 +11,6 @@ def fetchFromDb():
     )
     
     hit = response['Item']['hits']
-    print(hit)
     return hit
 
 def updateDb(lastCount):
@@ -36,17 +27,14 @@ def updateDb(lastCount):
 
 def lambda_handler(event, context):
     # TODO implement
-    firstHit = fetchFromDb()
-    print(f'First hit value is {firstHit}.')
-    # createItems()
-    lastHit = fetchFromDb()
+    lastCount = fetchFromDb()
     resp = {
         "statusCode": 200,
         "headers": {
             "Access-Control-Allow-Origin": "*",
         },
-        "body": lastHit
+        "body": lastCount
     }
-    updateDb(lastHit)
+    updateDb(lastCount)
     
     return resp
